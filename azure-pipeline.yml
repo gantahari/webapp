@@ -1,0 +1,26 @@
+trigger:
+- master
+
+pool:
+  name: "Default"
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+# Use .NET CLI to build and publish instead of VSBuild
+- script: |
+    dotnet build $(solution) --configuration $(buildConfiguration) --no-restore
+  displayName: 'Build Solution'
+
+- script: |
+    dotnet publish $(solution) --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) --no-build
+  displayName: 'Publish Solution'
